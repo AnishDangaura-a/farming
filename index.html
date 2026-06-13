@@ -1,0 +1,1152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Farmers Friend – AI Farming Companion</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Lora:wght@600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.26.0/dist/tabler-icons.min.css">
+<style>
+:root {
+  --green-900: #1b4332;
+  --green-800: #2d6a4f;
+  --green-700: #40916c;
+  --green-600: #52b788;
+  --green-100: #d8f3dc;
+  --green-50:  #f0faf4;
+  --amber-700: #b45309;
+  --amber-100: #fef3c7;
+  --red-700:   #b91c1c;
+  --red-100:   #fee2e2;
+  --blue-700:  #1d4ed8;
+  --blue-100:  #dbeafe;
+  --soil-dark: #3d1c02;
+  --soil-mid:  #7c3d12;
+  --bg:        #f7faf8;
+  --surface:   #ffffff;
+  --surface2:  #f0f4f2;
+  --border:    #d1e0d8;
+  --text:      #111827;
+  --text2:     #4b5563;
+  --text3:     #9ca3af;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,.07), 0 1px 2px rgba(0,0,0,.05);
+  --shadow-md: 0 4px 16px rgba(0,0,0,.08);
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0d1f17; --surface: #162b1f; --surface2: #1e3829;
+    --border: #2a4a38; --text: #f0faf4; --text2: #9fbaad; --text3: #5a7a6a;
+    --green-50: #1e3829; --green-100: #2a4a38;
+    --amber-100: #2d1f00; --red-100: #2d1212; --blue-100: #0d1f3d;
+  }
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 16px; scroll-behavior: smooth; }
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+}
+
+/* ─── LAYOUT ─── */
+.app-shell { display: flex; flex-direction: column; min-height: 100vh; max-width: 480px; margin: 0 auto; }
+@media (min-width: 900px) {
+  .app-shell { max-width: 100%; flex-direction: row; }
+  .sidebar { width: 240px; flex-shrink: 0; background: var(--surface); border-right: 1px solid var(--border); display: flex; flex-direction: column; position: sticky; top: 0; height: 100vh; overflow-y: auto; }
+  .bottom-nav { display: none; }
+  .main-content { flex: 1; overflow-y: auto; }
+}
+
+/* ─── SIDEBAR (desktop) ─── */
+.sidebar { padding: 1.5rem 1rem; }
+.sidebar-logo { display: flex; align-items: center; gap: 10px; padding: 0 0.5rem 1.5rem; border-bottom: 1px solid var(--border); margin-bottom: 1.5rem; }
+.logo-icon { width: 40px; height: 40px; background: var(--green-800); border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; color: #fff; font-size: 20px; }
+.logo-text { font-family: 'Lora', serif; font-size: 17px; color: var(--text); line-height: 1.2; }
+.logo-text span { display: block; font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 400; color: var(--text3); }
+.sidebar-nav { display: flex; flex-direction: column; gap: 4px; }
+.sidebar-link { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: var(--radius-sm); color: var(--text2); font-size: 14px; cursor: pointer; transition: all .15s; text-decoration: none; border: none; background: none; width: 100%; text-align: left; }
+.sidebar-link i { font-size: 18px; }
+.sidebar-link:hover { background: var(--surface2); color: var(--text); }
+.sidebar-link.active { background: var(--green-50); color: var(--green-800); font-weight: 500; }
+.sidebar-badge { margin-left: auto; background: var(--red-100); color: var(--red-700); font-size: 11px; font-weight: 600; padding: 2px 7px; border-radius: 20px; }
+.sidebar-footer { margin-top: auto; padding-top: 1.5rem; border-top: 1px solid var(--border); font-size: 12px; color: var(--text3); padding-left: 0.5rem; }
+
+/* ─── TOP BAR ─── */
+.topbar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 1rem 1.25rem; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 10; }
+.topbar-title { font-size: 17px; font-weight: 600; color: var(--text); }
+.topbar-sub { font-size: 12px; color: var(--text3); }
+.topbar-actions { display: flex; gap: 8px; }
+.icon-btn { width: 36px; height: 36px; border-radius: var(--radius-sm); border: 1px solid var(--border); background: var(--surface); color: var(--text2); display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 18px; transition: all .15s; }
+.icon-btn:hover { background: var(--surface2); }
+
+/* ─── BOTTOM NAV (mobile) ─── */
+.bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: var(--surface); border-top: 1px solid var(--border); display: flex; z-index: 20; padding-bottom: env(safe-area-inset-bottom); }
+.bnav-btn { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 10px 4px 8px; border: none; background: none; color: var(--text3); font-size: 10px; cursor: pointer; transition: all .15s; min-width: 0; }
+.bnav-btn i { font-size: 20px; }
+.bnav-btn.active { color: var(--green-700); }
+.bnav-btn .bnav-dot { width: 4px; height: 4px; border-radius: 50%; background: var(--green-700); display: none; }
+.bnav-btn.active .bnav-dot { display: block; }
+
+/* ─── PAGE SECTIONS ─── */
+.page { display: none; padding: 1.25rem 1.25rem 6rem; }
+.page.active { display: block; }
+@media (min-width: 900px) { .page { padding: 2rem; padding-bottom: 2rem; } }
+
+/* ─── COMMON CARDS ─── */
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.125rem 1.25rem; margin-bottom: 1rem; box-shadow: var(--shadow-sm); }
+.card-header { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+.card-header-icon { width: 32px; height: 32px; border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; font-size: 17px; flex-shrink: 0; }
+.card-header-icon.green { background: var(--green-100); color: var(--green-800); }
+.card-header-icon.amber { background: var(--amber-100); color: var(--amber-700); }
+.card-header-icon.red { background: var(--red-100); color: var(--red-700); }
+.card-header-icon.blue { background: var(--blue-100); color: var(--blue-700); }
+.card-title { font-size: 14px; font-weight: 600; color: var(--text); }
+.card-subtitle { font-size: 12px; color: var(--text3); margin-top: 1px; }
+
+/* ─── STAT GRID ─── */
+.stat-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 1.125rem; }
+.stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 1rem; box-shadow: var(--shadow-sm); }
+.stat-label { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: .04em; margin-bottom: 6px; }
+.stat-value { font-size: 26px; font-weight: 600; color: var(--text); line-height: 1; margin-bottom: 6px; }
+.stat-badge { display: inline-flex; align-items: center; gap: 3px; font-size: 11px; font-weight: 500; padding: 2px 8px; border-radius: 20px; }
+.badge-green { background: var(--green-100); color: var(--green-800); }
+.badge-amber { background: var(--amber-100); color: var(--amber-700); }
+.badge-red { background: var(--red-100); color: var(--red-700); }
+.badge-blue { background: var(--blue-100); color: var(--blue-700); }
+
+/* ─── LIST ROWS ─── */
+.list-row { display: flex; align-items: flex-start; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--border); }
+.list-row:last-child { border-bottom: none; padding-bottom: 0; }
+.row-icon { width: 34px; height: 34px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; margin-top: 2px; }
+.row-icon.g { background: var(--green-100); color: var(--green-800); }
+.row-icon.a { background: var(--amber-100); color: var(--amber-700); }
+.row-icon.r { background: var(--red-100); color: var(--red-700); }
+.row-icon.b { background: var(--blue-100); color: var(--blue-700); }
+.row-text p { font-size: 13px; font-weight: 500; color: var(--text); margin-bottom: 2px; }
+.row-text span { font-size: 12px; color: var(--text2); line-height: 1.4; display: block; }
+
+/* ─── SECTION HEADING ─── */
+.section-heading { font-size: 12px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 10px; margin-top: 4px; }
+
+/* ─── BUTTONS ─── */
+.btn { display: inline-flex; align-items: center; gap: 6px; padding: 10px 18px; border-radius: var(--radius-sm); font-size: 13px; font-weight: 500; cursor: pointer; transition: all .15s; border: none; }
+.btn-primary { background: var(--green-800); color: white; }
+.btn-primary:hover { background: var(--green-700); }
+.btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text2); }
+.btn-outline:hover { background: var(--surface2); }
+.btn-full { width: 100%; justify-content: center; }
+.btn-lg { padding: 13px 20px; font-size: 14px; border-radius: var(--radius-md); }
+
+/* ─── AI BOX ─── */
+.ai-input-wrap { background: var(--surface2); border-radius: var(--radius-md); padding: 1rem; }
+.ai-input-row { display: flex; gap: 8px; }
+.ai-input-row input { flex: 1; padding: 9px 12px; border: 1px solid var(--border); border-radius: var(--radius-sm); font-size: 13px; background: var(--surface); color: var(--text); outline: none; }
+.ai-input-row input:focus { border-color: var(--green-700); box-shadow: 0 0 0 3px rgba(64,145,108,.15); }
+.ai-input-row button { padding: 9px 16px; background: var(--green-800); color: white; border: none; border-radius: var(--radius-sm); cursor: pointer; font-size: 13px; font-weight: 500; white-space: nowrap; }
+.ai-input-row button:hover { background: var(--green-700); }
+.ai-status { font-size: 13px; color: var(--text3); margin-top: 10px; font-style: italic; display: none; }
+.ai-status.visible { display: flex; align-items: center; gap: 6px; }
+.ai-response { margin-top: 12px; font-size: 13px; color: var(--text); line-height: 1.75; display: none; white-space: pre-wrap; }
+.ai-response.visible { display: block; }
+.quick-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+.chip { background: var(--surface2); border: 1px solid var(--border); border-radius: 20px; padding: 5px 12px; font-size: 12px; cursor: pointer; color: var(--text2); transition: all .15s; }
+.chip:hover { border-color: var(--green-700); color: var(--green-800); background: var(--green-50); }
+
+/* ─── CROP CARDS ─── */
+.crop-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 1rem; }
+.crop-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 1rem 0.75rem; text-align: center; cursor: pointer; transition: all .15s; }
+.crop-card:hover { border-color: var(--green-600); }
+.crop-card.selected { border: 2px solid var(--green-700); background: var(--green-50); }
+.crop-emoji { font-size: 26px; margin-bottom: 6px; }
+.crop-name { font-size: 12px; font-weight: 600; color: var(--text); }
+.crop-season { font-size: 11px; color: var(--text3); margin-top: 2px; }
+
+/* ─── WEATHER ─── */
+.weather-row { display: flex; align-items: center; gap: 8px; padding: 9px 0; border-bottom: 1px solid var(--border); }
+.weather-row:last-child { border-bottom: none; }
+.weather-day { font-size: 13px; font-weight: 500; width: 72px; color: var(--text); }
+.weather-icon { font-size: 18px; margin-right: 2px; }
+.weather-desc { font-size: 12px; color: var(--text2); width: 100px; }
+.weather-bar { flex: 1; height: 5px; background: var(--surface2); border-radius: 3px; overflow: hidden; }
+.weather-bar-fill { height: 100%; border-radius: 3px; background: var(--green-700); }
+.weather-temp { font-size: 12px; color: var(--text2); white-space: nowrap; }
+
+/* ─── MARKET ─── */
+.market-row { display: flex; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--border); gap: 10px; }
+.market-row:last-child { border-bottom: none; }
+.market-crop { font-size: 13px; font-weight: 500; flex: 1; color: var(--text); }
+.market-price { font-size: 14px; font-weight: 600; color: var(--text); }
+.market-change { font-size: 11px; font-weight: 500; padding: 2px 7px; border-radius: 20px; }
+.ch-up { background: var(--green-100); color: var(--green-800); }
+.ch-down { background: var(--red-100); color: var(--red-700); }
+.ch-flat { background: var(--surface2); color: var(--text3); }
+
+/* ─── PEST CARDS ─── */
+.pest-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; margin-bottom: 1rem; }
+.pest-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 1rem; box-shadow: var(--shadow-sm); }
+.sev-pill { font-size: 11px; font-weight: 600; padding: 3px 9px; border-radius: 20px; display: inline-block; margin-bottom: 8px; }
+.sev-high { background: var(--red-100); color: var(--red-700); }
+.sev-med { background: var(--amber-100); color: var(--amber-700); }
+.sev-low { background: var(--green-100); color: var(--green-800); }
+.pest-name { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+.pest-desc { font-size: 12px; color: var(--text2); line-height: 1.55; }
+
+/* ─── CAMERA SCAN ─── */
+.scan-hero { background: var(--green-900); border-radius: var(--radius-xl); padding: 2rem 1.5rem; text-align: center; margin-bottom: 1rem; position: relative; overflow: hidden; }
+.scan-hero::before { content: ''; position: absolute; inset: 0; background: repeating-linear-gradient(45deg, rgba(255,255,255,.02) 0px, rgba(255,255,255,.02) 1px, transparent 1px, transparent 20px); }
+.scan-hero h2 { color: white; font-size: 20px; font-weight: 600; margin-bottom: 6px; position: relative; }
+.scan-hero p { color: rgba(255,255,255,.7); font-size: 13px; margin-bottom: 1.5rem; position: relative; }
+.scan-btns { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; position: relative; }
+.scan-btn { display: flex; align-items: center; gap: 8px; padding: 12px 20px; border-radius: var(--radius-md); font-size: 14px; font-weight: 500; cursor: pointer; border: none; transition: all .15s; }
+.scan-btn-primary { background: var(--green-600); color: white; }
+.scan-btn-primary:hover { background: var(--green-700); }
+.scan-btn-secondary { background: rgba(255,255,255,.15); color: white; }
+.scan-btn-secondary:hover { background: rgba(255,255,255,.22); }
+#camera-view-wrap { display: none; border-radius: var(--radius-lg); overflow: hidden; margin-bottom: 1rem; position: relative; background: #000; }
+#camera-view { width: 100%; max-height: 340px; object-fit: cover; display: block; }
+.camera-overlay { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; pointer-events: none; }
+.scan-frame { width: 200px; height: 200px; border: 2px solid rgba(255,255,255,.6); border-radius: 16px; position: relative; }
+.scan-frame::before, .scan-frame::after { content: ''; position: absolute; width: 24px; height: 24px; }
+.scan-frame::before { top: -2px; left: -2px; border-top: 3px solid var(--green-600); border-left: 3px solid var(--green-600); border-radius: 4px 0 0 0; }
+.scan-frame::after { bottom: -2px; right: -2px; border-bottom: 3px solid var(--green-600); border-right: 3px solid var(--green-600); border-radius: 0 0 4px 0; }
+.camera-actions { display: flex; gap: 10px; margin-bottom: 1rem; }
+#preview-wrap { display: none; margin-bottom: 1rem; }
+#preview-img { width: 100%; border-radius: var(--radius-lg); max-height: 280px; object-fit: cover; }
+
+/* ─── SOIL CALCULATOR ─── */
+.soil-form { display: grid; gap: 14px; margin-bottom: 1rem; }
+.form-group label { display: block; font-size: 12px; font-weight: 600; color: var(--text2); margin-bottom: 5px; text-transform: uppercase; letter-spacing: .04em; }
+.form-group select, .form-group input { width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: var(--radius-sm); font-size: 13px; background: var(--surface); color: var(--text); outline: none; }
+.form-group select:focus, .form-group input:focus { border-color: var(--green-700); box-shadow: 0 0 0 3px rgba(64,145,108,.15); }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.soil-result { display: none; }
+.soil-result.visible { display: block; }
+.soil-result-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 1rem; }
+.soil-rcard { background: var(--surface2); border-radius: var(--radius-md); padding: 0.875rem 1rem; }
+.soil-rcard .sr-label { font-size: 11px; color: var(--text3); margin-bottom: 4px; }
+.soil-rcard .sr-value { font-size: 18px; font-weight: 600; color: var(--text); }
+.soil-rcard .sr-unit { font-size: 11px; color: var(--text3); }
+.fert-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.fert-table th { text-align: left; padding: 8px 10px; font-size: 11px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: .04em; border-bottom: 1px solid var(--border); }
+.fert-table td { padding: 9px 10px; border-bottom: 1px solid var(--border); color: var(--text); }
+.fert-table tr:last-child td { border-bottom: none; }
+.fert-table .highlight { font-weight: 600; color: var(--green-800); }
+
+/* ─── CROP ROTATION ─── */
+.rotation-builder { margin-bottom: 1rem; }
+.rotation-slots { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 1rem; }
+.rotation-slot { border: 1.5px dashed var(--border); border-radius: var(--radius-md); padding: 0.875rem 0.5rem; text-align: center; cursor: pointer; transition: all .15s; min-height: 90px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; }
+.rotation-slot:hover { border-color: var(--green-600); background: var(--green-50); }
+.rotation-slot.filled { border-style: solid; border-color: var(--green-700); background: var(--green-50); }
+.rotation-slot .slot-season { font-size: 10px; color: var(--text3); font-weight: 600; text-transform: uppercase; margin-bottom: 4px; }
+.rotation-slot .slot-crop { font-size: 11px; font-weight: 600; color: var(--green-800); }
+.rotation-slot .slot-emoji { font-size: 22px; }
+.rotation-slot .slot-plus { font-size: 22px; color: var(--text3); }
+.rotation-arrow { display: flex; justify-content: center; margin: 0 0 1rem; gap: 8px; }
+.rotation-arrow span { color: var(--text3); font-size: 18px; }
+.rotation-benefits { display: none; }
+.rotation-benefits.visible { display: block; }
+.benefit-row { display: flex; gap: 8px; align-items: flex-start; padding: 8px 0; border-bottom: 1px solid var(--border); }
+.benefit-row:last-child { border-bottom: none; }
+.b-icon { width: 28px; height: 28px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
+.b-text { font-size: 12px; color: var(--text2); line-height: 1.5; }
+.b-text strong { color: var(--text); display: block; font-size: 13px; margin-bottom: 2px; }
+
+/* ─── SCANNER RESULTS ─── */
+.scan-result-box { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.125rem 1.25rem; margin-top: 1rem; display: none; box-shadow: var(--shadow-md); }
+.scan-result-box.visible { display: block; }
+.scan-result-header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid var(--border); }
+.scan-result-emoji { font-size: 32px; }
+.scan-result-title { font-size: 16px; font-weight: 600; color: var(--text); }
+.scan-result-conf { font-size: 12px; color: var(--text3); margin-top: 2px; }
+
+/* ─── DASHBOARD HERO CARD ─── */
+.dash-hero { background: var(--green-800); border-radius: var(--radius-xl); padding: 1.5rem; margin-bottom: 1.125rem; color: white; position: relative; overflow: hidden; }
+.dash-hero::after { content: '🌱'; position: absolute; right: 1.5rem; bottom: -8px; font-size: 72px; opacity: .18; }
+.dash-hero h2 { font-family: 'Lora', serif; font-size: 22px; margin-bottom: 4px; }
+.dash-hero p { font-size: 13px; opacity: .8; margin-bottom: 1.25rem; }
+.dash-hero-stats { display: flex; gap: 1.5rem; }
+.dhs { text-align: center; }
+.dhs .dhs-v { font-size: 24px; font-weight: 600; }
+.dhs .dhs-l { font-size: 11px; opacity: .7; margin-top: 2px; }
+
+/* ─── PROGRESS BARS ─── */
+.progress-wrap { margin-bottom: 8px; }
+.progress-label { display: flex; justify-content: space-between; font-size: 12px; color: var(--text2); margin-bottom: 4px; }
+.progress-track { height: 6px; background: var(--surface2); border-radius: 3px; overflow: hidden; }
+.progress-fill { height: 100%; border-radius: 3px; background: var(--green-700); transition: width .5s ease; }
+
+/* ─── MISC ─── */
+.divider { height: 1px; background: var(--border); margin: 12px 0; }
+.text-sm { font-size: 13px; color: var(--text2); line-height: 1.7; }
+.mt-1 { margin-top: 8px; }
+.mt-2 { margin-top: 12px; }
+.alert-strip { display: flex; align-items: center; gap: 8px; background: var(--amber-100); border-left: 3px solid var(--amber-700); border-radius: var(--radius-sm); padding: 10px 12px; margin-bottom: 10px; font-size: 13px; color: var(--amber-700); font-weight: 500; }
+#file-input { display: none; }
+.spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid var(--border); border-top-color: var(--green-700); border-radius: 50%; animation: spin .7s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.tag { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 500; padding: 3px 8px; border-radius: 20px; }
+.rotation-pick-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-top: 8px; }
+.rotation-pick-btn { border: 1px solid var(--border); background: var(--surface); border-radius: var(--radius-sm); padding: 8px; text-align: center; font-size: 11px; cursor: pointer; transition: all .15s; }
+.rotation-pick-btn:hover { border-color: var(--green-600); background: var(--green-50); }
+.rotation-pick-btn .rp-emoji { font-size: 18px; display: block; margin-bottom: 3px; }
+.modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.5); z-index: 100; align-items: flex-end; }
+.modal-overlay.open { display: flex; }
+@media (min-width: 600px) { .modal-overlay { align-items: center; justify-content: center; } }
+.modal-box { background: var(--surface); border-radius: var(--radius-xl) var(--radius-xl) 0 0; padding: 1.5rem 1.25rem 2rem; width: 100%; max-height: 70vh; overflow-y: auto; }
+@media (min-width: 600px) { .modal-box { border-radius: var(--radius-xl); max-width: 400px; } }
+.modal-title { font-size: 16px; font-weight: 600; color: var(--text); margin-bottom: 1rem; }
+</style>
+</head>
+<body>
+
+<input type="file" id="file-input" accept="image/*">
+
+<!-- Crop Picker Modal -->
+<div class="modal-overlay" id="crop-picker-modal" onclick="closeModal(event)">
+  <div class="modal-box">
+    <div class="modal-title">Choose crop for this season</div>
+    <div class="rotation-pick-grid" id="rotation-pick-grid"></div>
+  </div>
+</div>
+
+<div class="app-shell">
+
+  <!-- Sidebar (desktop) -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-icon"><i class="ti ti-plant-2"></i></div>
+      <div class="logo-text">Farmers Friend <span>AI Farming Companion</span></div>
+    </div>
+    <nav class="sidebar-nav">
+      <button class="sidebar-link active" onclick="showPage('dashboard',this)"><i class="ti ti-layout-dashboard"></i>Dashboard</button>
+      <button class="sidebar-link" onclick="showPage('scan',this)"><i class="ti ti-scan"></i>Scan & Identify <span class="sidebar-badge">NEW</span></button>
+      <button class="sidebar-link" onclick="showPage('advisor',this)"><i class="ti ti-robot"></i>AI Advisor</button>
+      <button class="sidebar-link" onclick="showPage('crops',this)"><i class="ti ti-seeding"></i>Crop Guides</button>
+      <button class="sidebar-link" onclick="showPage('soil',this)"><i class="ti ti-flask"></i>Soil Calculator</button>
+      <button class="sidebar-link" onclick="showPage('rotation',this)"><i class="ti ti-refresh"></i>Crop Rotation</button>
+      <button class="sidebar-link" onclick="showPage('weather',this)"><i class="ti ti-cloud"></i>Weather</button>
+      <button class="sidebar-link" onclick="showPage('market',this)"><i class="ti ti-chart-bar"></i>Market Prices</button>
+      <button class="sidebar-link" onclick="showPage('pests',this)"><i class="ti ti-bug"></i>Pest & Disease</button>
+    </nav>
+    <div class="sidebar-footer">Farmers Friend v2.0<br>Powered by Claude AI</div>
+  </aside>
+
+  <!-- Main -->
+  <div class="main-content">
+
+    <!-- Top Bar -->
+    <header class="topbar">
+      <div>
+        <div class="topbar-title" id="topbar-title">Dashboard</div>
+        <div class="topbar-sub" id="topbar-sub">Good morning, Farmer</div>
+      </div>
+      <div class="topbar-actions">
+        <button class="icon-btn" title="Notifications"><i class="ti ti-bell"></i></button>
+      </div>
+    </header>
+
+    <!-- ═══════════════ DASHBOARD ═══════════════ -->
+    <section class="page active" id="page-dashboard">
+      <div class="dash-hero">
+        <h2>Welcome back!</h2>
+        <p>Your fields are looking healthy this week.</p>
+        <div class="dash-hero-stats">
+          <div class="dhs"><div class="dhs-v">87%</div><div class="dhs-l">Field Health</div></div>
+          <div class="dhs"><div class="dhs-v">18d</div><div class="dhs-l">To Harvest</div></div>
+          <div class="dhs"><div class="dhs-v">2</div><div class="dhs-l">Alerts</div></div>
+        </div>
+      </div>
+
+      <div class="stat-grid">
+        <div class="stat-card">
+          <div class="stat-label">Soil Moisture</div>
+          <div class="stat-value">62%</div>
+          <span class="stat-badge badge-amber"><i class="ti ti-droplet" style="font-size:10px"></i> Moderate</span>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Temperature</div>
+          <div class="stat-value">28°C</div>
+          <span class="stat-badge badge-green"><i class="ti ti-check" style="font-size:10px"></i> Optimal</span>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Crop Stage</div>
+          <div class="stat-value" style="font-size:16px">Flowering</div>
+          <span class="stat-badge badge-blue">Wheat · Sector A</span>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Rain Forecast</div>
+          <div class="stat-value">18mm</div>
+          <span class="stat-badge badge-blue">Next 48h</span>
+        </div>
+      </div>
+
+      <div class="alert-strip"><i class="ti ti-alert-triangle"></i> Aphid risk detected — inspect Sector B today</div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-header-icon red"><i class="ti ti-bell"></i></div>
+          <div><div class="card-title">Today's Alerts</div></div>
+        </div>
+        <div class="list-row">
+          <div class="row-icon a"><i class="ti ti-droplet"></i></div>
+          <div class="row-text"><p>Irrigation needed within 48h</p><span>Soil moisture dropping below optimal threshold for wheat</span></div>
+        </div>
+        <div class="list-row">
+          <div class="row-icon r"><i class="ti ti-bug"></i></div>
+          <div class="row-text"><p>Aphid risk in Sector B</p><span>High humidity + temp conditions — inspect crops today</span></div>
+        </div>
+        <div class="list-row">
+          <div class="row-icon g"><i class="ti ti-sun"></i></div>
+          <div class="row-text"><p>Ideal fertilization window: Saturday</p><span>Dry weather expected — best conditions in 2 weeks</span></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-header-icon green"><i class="ti ti-activity"></i></div>
+          <div><div class="card-title">Field Health Overview</div></div>
+        </div>
+        <div class="progress-wrap">
+          <div class="progress-label"><span>Nitrogen level</span><span>72%</span></div>
+          <div class="progress-track"><div class="progress-fill" style="width:72%"></div></div>
+        </div>
+        <div class="progress-wrap">
+          <div class="progress-label"><span>Phosphorus</span><span>58%</span></div>
+          <div class="progress-track"><div class="progress-fill" style="width:58%;background:#b45309"></div></div>
+        </div>
+        <div class="progress-wrap">
+          <div class="progress-label"><span>Potassium</span><span>81%</span></div>
+          <div class="progress-track"><div class="progress-fill" style="width:81%"></div></div>
+        </div>
+        <div class="progress-wrap mt-1">
+          <div class="progress-label"><span>Soil pH</span><span>6.4 (Optimal)</span></div>
+          <div class="progress-track"><div class="progress-fill" style="width:80%"></div></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-header-icon amber"><i class="ti ti-bulb"></i></div>
+          <div><div class="card-title">Tip of the Day</div></div>
+        </div>
+        <p class="text-sm">Rotate your crops every season to prevent soil depletion and reduce pest build-up. Legumes like lentils or beans fix nitrogen naturally, reducing the need for synthetic fertilizer next season.</p>
+      </div>
+    </section>
+
+    <!-- ═══════════════ SCAN & IDENTIFY ═══════════════ -->
+    <section class="page" id="page-scan">
+      <div class="scan-hero">
+        <h2><i class="ti ti-scan" style="vertical-align:-3px"></i> Scan & Identify</h2>
+        <p>Point your camera at a crop, leaf, pest, soil, or weed — get instant AI-powered identification and advice.</p>
+        <div class="scan-btns">
+          <button class="scan-btn scan-btn-primary" onclick="openCamera()"><i class="ti ti-camera"></i> Use Camera</button>
+          <button class="scan-btn scan-btn-secondary" onclick="document.getElementById('file-input').click()"><i class="ti ti-photo"></i> Upload Image</button>
+        </div>
+      </div>
+
+      <div id="camera-view-wrap">
+        <video id="camera-view" autoplay playsinline muted></video>
+        <div class="camera-overlay"><div class="scan-frame"></div></div>
+      </div>
+      <div class="camera-actions" id="camera-actions" style="display:none">
+        <button class="btn btn-primary" onclick="capturePhoto()"><i class="ti ti-camera"></i> Capture</button>
+        <button class="btn btn-outline" onclick="stopCamera()"><i class="ti ti-x"></i> Cancel</button>
+      </div>
+
+      <div id="preview-wrap">
+        <img id="preview-img" alt="Captured image">
+        <div class="camera-actions mt-1">
+          <button class="btn btn-primary" onclick="analyzeImage()"><i class="ti ti-robot"></i> Analyze with AI</button>
+          <button class="btn btn-outline" onclick="resetScan()"><i class="ti ti-refresh"></i> New Scan</button>
+        </div>
+      </div>
+
+      <div class="scan-result-box" id="scan-result-box">
+        <div class="scan-result-header">
+          <span class="scan-result-emoji" id="scan-result-emoji">🔍</span>
+          <div>
+            <div class="scan-result-title" id="scan-result-title">Analysis Result</div>
+            <div class="scan-result-conf" id="scan-result-conf"></div>
+          </div>
+        </div>
+        <div id="scan-result-body" class="text-sm"></div>
+      </div>
+
+      <div class="card mt-2">
+        <div class="card-header">
+          <div class="card-header-icon green"><i class="ti ti-camera"></i></div>
+          <div><div class="card-title">What can I scan?</div></div>
+        </div>
+        <div class="list-row">
+          <div class="row-icon g"><i class="ti ti-leaf"></i></div>
+          <div class="row-text"><p>Diseased or damaged leaves</p><span>Identify blight, rust, spots, wilting, or nutrient deficiency</span></div>
+        </div>
+        <div class="list-row">
+          <div class="row-icon r"><i class="ti ti-bug"></i></div>
+          <div class="row-text"><p>Pests on crops</p><span>Identify insects, larvae, eggs, and get treatment advice</span></div>
+        </div>
+        <div class="list-row">
+          <div class="row-icon a"><i class="ti ti-seeding"></i></div>
+          <div class="row-text"><p>Unknown plants or weeds</p><span>Identify wild plants, weeds, and whether they're harmful</span></div>
+        </div>
+        <div class="list-row">
+          <div class="row-icon b"><i class="ti ti-layers"></i></div>
+          <div class="row-text"><p>Soil color & texture</p><span>Get a quick assessment of soil health and type</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════ AI ADVISOR ═══════════════ -->
+    <section class="page" id="page-advisor">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-header-icon blue"><i class="ti ti-robot"></i></div>
+          <div><div class="card-title">AI Farming Advisor</div><div class="card-subtitle">Expert advice in seconds</div></div>
+        </div>
+        <p class="text-sm" style="margin-bottom:12px">Ask anything about crops, soil, pests, weather, fertilizers, irrigation, or market strategy. Advice is tailored for South Asian smallholder farmers.</p>
+        <div class="quick-chips">
+          <span class="chip" onclick="askAdvisor('How do I improve soil quality for next season?')">Improve soil quality</span>
+          <span class="chip" onclick="askAdvisor('When is the best time to plant tomatoes in Nepal?')">Tomato timing</span>
+          <span class="chip" onclick="askAdvisor('How do I control aphids organically without chemicals?')">Organic pest control</span>
+          <span class="chip" onclick="askAdvisor('How much water does rice need per week during different growth stages?')">Rice water needs</span>
+          <span class="chip" onclick="askAdvisor('What fertilizer schedule should I follow for wheat from sowing to harvest?')">Wheat fertilizer plan</span>
+          <span class="chip" onclick="askAdvisor('How do I maximize my profit when selling vegetables at the market?')">Market strategy</span>
+        </div>
+        <div class="ai-input-wrap">
+          <div class="ai-input-row">
+            <input type="text" id="advisor-q" placeholder="Ask anything about your farm…">
+            <button onclick="callAdvisor()">Ask <i class="ti ti-send" style="font-size:12px"></i></button>
+          </div>
+          <div class="ai-status" id="advisor-loading"><div class="spinner"></div> Getting expert advice…</div>
+          <div class="ai-response" id="advisor-response"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════ CROP GUIDES ═══════════════ -->
+    <section class="page" id="page-crops">
+      <p class="section-heading">Select a crop</p>
+      <div class="crop-grid" id="crop-grid"></div>
+      <div id="crop-detail-card" class="card" style="display:none">
+        <div class="card-header">
+          <div class="card-header-icon green"><i class="ti ti-seeding"></i></div>
+          <div><div class="card-title" id="crop-detail-title">Growing Guide</div></div>
+        </div>
+        <div id="crop-detail-body"></div>
+      </div>
+    </section>
+
+    <!-- ═══════════════ SOIL CALCULATOR ═══════════════ -->
+    <section class="page" id="page-soil">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-header-icon amber"><i class="ti ti-flask"></i></div>
+          <div><div class="card-title">Soil Nutrient Calculator</div><div class="card-subtitle">Get fertilizer recommendations</div></div>
+        </div>
+        <div class="soil-form">
+          <div class="form-row">
+            <div class="form-group">
+              <label>Crop Type</label>
+              <select id="soil-crop">
+                <option value="wheat">Wheat</option>
+                <option value="rice">Rice</option>
+                <option value="tomato">Tomato</option>
+                <option value="potato">Potato</option>
+                <option value="maize">Maize</option>
+                <option value="lentil">Lentil</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Field Area (bigha)</label>
+              <input type="number" id="soil-area" value="2" min="0.1" step="0.5">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Soil Type</label>
+              <select id="soil-type">
+                <option value="loam">Loamy</option>
+                <option value="clay">Clayey</option>
+                <option value="sandy">Sandy</option>
+                <option value="silt">Silty</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Soil pH (approx.)</label>
+              <input type="number" id="soil-ph" value="6.5" min="4" max="9" step="0.1">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Nitrogen level</label>
+              <select id="soil-n">
+                <option value="low">Low</option>
+                <option value="medium" selected>Medium</option>
+                <option value="high">High</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Previous crop</label>
+              <select id="soil-prev">
+                <option value="legume">Legume / Pulse</option>
+                <option value="cereal">Cereal</option>
+                <option value="vegetable">Vegetable</option>
+                <option value="fallow">Fallow (none)</option>
+              </select>
+            </div>
+          </div>
+          <button class="btn btn-primary btn-full btn-lg" onclick="calcSoil()"><i class="ti ti-calculator"></i> Calculate Recommendations</button>
+        </div>
+
+        <div class="soil-result" id="soil-result">
+          <div class="divider"></div>
+          <p class="section-heading" style="margin-top:12px">Fertilizer Plan</p>
+          <div class="soil-result-grid" id="soil-rcard-grid"></div>
+          <table class="fert-table" id="fert-table"></table>
+          <div class="mt-2" id="soil-notes"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-header-icon green"><i class="ti ti-robot"></i></div>
+          <div><div class="card-title">AI Soil Advisor</div><div class="card-subtitle">Ask for personalized soil advice</div></div>
+        </div>
+        <div class="ai-input-wrap">
+          <div class="ai-input-row">
+            <input type="text" id="soil-q" placeholder="e.g. My soil is too acidic, what should I add?">
+            <button onclick="callSoilAI()">Ask <i class="ti ti-send" style="font-size:12px"></i></button>
+          </div>
+          <div class="ai-status" id="soil-loading"><div class="spinner"></div> Analyzing soil question…</div>
+          <div class="ai-response" id="soil-response"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════ CROP ROTATION ═══════════════ -->
+    <section class="page" id="page-rotation">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-header-icon green"><i class="ti ti-refresh"></i></div>
+          <div><div class="card-title">Crop Rotation Planner</div><div class="card-subtitle">Plan 4 seasons to maximize soil health</div></div>
+        </div>
+        <p class="text-sm" style="margin-bottom:14px">Tap each season slot to assign a crop. We'll calculate soil benefits, nutrient balance, and pest reduction impact.</p>
+
+        <div class="rotation-slots" id="rotation-slots"></div>
+
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn btn-primary" onclick="analyzeRotation()"><i class="ti ti-chart-dots"></i> Analyze Plan</button>
+          <button class="btn btn-outline" onclick="resetRotation()"><i class="ti ti-refresh"></i> Reset</button>
+          <button class="btn btn-outline" onclick="autoRotation()"><i class="ti ti-wand"></i> AI Auto-Plan</button>
+        </div>
+
+        <div class="rotation-benefits" id="rotation-benefits">
+          <div class="divider"></div>
+          <p class="section-heading">Rotation Analysis</p>
+          <div id="rotation-benefit-list"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-header-icon blue"><i class="ti ti-robot"></i></div>
+          <div><div class="card-title">AI Rotation Advisor</div></div>
+        </div>
+        <div class="ai-input-wrap">
+          <div class="ai-input-row">
+            <input type="text" id="rotation-q" placeholder="e.g. I've grown wheat for 3 years, what next?">
+            <button onclick="callRotationAI()">Ask <i class="ti ti-send" style="font-size:12px"></i></button>
+          </div>
+          <div class="ai-status" id="rotation-loading"><div class="spinner"></div> Building rotation plan…</div>
+          <div class="ai-response" id="rotation-response"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════ WEATHER ═══════════════ -->
+    <section class="page" id="page-weather">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-header-icon blue"><i class="ti ti-cloud-sun"></i></div>
+          <div><div class="card-title">7-Day Farming Forecast</div><div class="card-subtitle">Kathmandu Valley · Updated 6 AM</div></div>
+        </div>
+        <div id="weather-list"></div>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <div class="card-header-icon green"><i class="ti ti-droplet"></i></div>
+          <div><div class="card-title">Smart Irrigation Planner</div></div>
+        </div>
+        <div class="list-row">
+          <div class="row-icon g"><i class="ti ti-check"></i></div>
+          <div class="row-text"><p>Skip irrigation Mon & Tue</p><span>18mm rain expected — no watering needed</span></div>
+        </div>
+        <div class="list-row">
+          <div class="row-icon a"><i class="ti ti-droplet"></i></div>
+          <div class="row-text"><p>Irrigate Thursday morning</p><span>Dry spell starts Wednesday — act before peak heat</span></div>
+        </div>
+        <div class="list-row">
+          <div class="row-icon g"><i class="ti ti-wind"></i></div>
+          <div class="row-text"><p>Spray window: Saturday 7–10 AM</p><span>Low wind + no rain — ideal for pesticide application</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════ MARKET ═══════════════ -->
+    <section class="page" id="page-market">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-header-icon green"><i class="ti ti-chart-bar"></i></div>
+          <div><div class="card-title">Today's Mandi Prices</div><div class="card-subtitle">Per quintal (100 kg) · Live prices</div></div>
+        </div>
+        <div id="market-list"></div>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <div class="card-header-icon amber"><i class="ti ti-trending-up"></i></div>
+          <div><div class="card-title">AI Price Forecast</div></div>
+        </div>
+        <p class="text-sm">Wheat prices expected to rise 8–12% over the next 3 weeks due to lower-than-average government procurement. Tomato prices may fall after mid-season glut — sell early if possible. Lentil prices remain strong with export demand from India.</p>
+        <button class="btn btn-primary btn-full mt-2" onclick="askAdvisorAndSwitch('Give me a detailed market analysis and selling strategy for wheat and tomatoes this season in Nepal')"><i class="ti ti-robot"></i> Get Full AI Analysis</button>
+      </div>
+    </section>
+
+    <!-- ═══════════════ PESTS ═══════════════ -->
+    <section class="page" id="page-pests">
+      <p class="section-heading">Common threats this season</p>
+      <div class="pest-grid" id="pest-grid"></div>
+      <div class="card">
+        <div class="card-header">
+          <div class="card-header-icon red"><i class="ti ti-robot"></i></div>
+          <div><div class="card-title">AI Pest Identifier</div><div class="card-subtitle">Describe symptoms → instant diagnosis</div></div>
+        </div>
+        <div class="ai-input-wrap">
+          <div class="ai-input-row">
+            <input type="text" id="pest-q" placeholder="e.g. White powder on wheat leaves…">
+            <button onclick="callPestAI()">Identify <i class="ti ti-send" style="font-size:12px"></i></button>
+          </div>
+          <div class="ai-status" id="pest-loading"><div class="spinner"></div> Analyzing symptoms…</div>
+          <div class="ai-response" id="pest-response"></div>
+        </div>
+      </div>
+    </section>
+
+  </div><!-- /main-content -->
+
+  <!-- Bottom Nav (mobile) -->
+  <nav class="bottom-nav">
+    <button class="bnav-btn active" onclick="showPage('dashboard',this,true)"><i class="ti ti-layout-dashboard"></i><span>Home</span><div class="bnav-dot"></div></button>
+    <button class="bnav-btn" onclick="showPage('scan',this,true)"><i class="ti ti-scan"></i><span>Scan</span><div class="bnav-dot"></div></button>
+    <button class="bnav-btn" onclick="showPage('advisor',this,true)"><i class="ti ti-robot"></i><span>Advisor</span><div class="bnav-dot"></div></button>
+    <button class="bnav-btn" onclick="showPage('soil',this,true)"><i class="ti ti-flask"></i><span>Soil</span><div class="bnav-dot"></div></button>
+    <button class="bnav-btn" onclick="showPage('market',this,true)"><i class="ti ti-chart-bar"></i><span>Market</span><div class="bnav-dot"></div></button>
+    <button class="bnav-btn" onclick="showPage('pests',this,true)"><i class="ti ti-bug"></i><span>Pests</span><div class="bnav-dot"></div></button>
+  </nav>
+</div>
+
+<script>
+const ANTHROPIC_API = 'https://api.anthropic.com/v1/messages';
+const MODEL = 'claude-sonnet-4-6';
+
+// ── PAGE ROUTING ──────────────────────────────────────────────
+const pageTitles = {
+  dashboard:'Dashboard', scan:'Scan & Identify', advisor:'AI Advisor',
+  crops:'Crop Guides', soil:'Soil Calculator', rotation:'Crop Rotation Planner',
+  weather:'Weather', market:'Market Prices', pests:'Pest & Disease'
+};
+function showPage(name, btn, fromMobile) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  document.getElementById('topbar-title').textContent = pageTitles[name] || name;
+  if (!fromMobile) {
+    document.querySelectorAll('.sidebar-link').forEach(b => b.classList.remove('active'));
+    if (btn) btn.classList.add('active');
+  } else {
+    document.querySelectorAll('.bnav-btn').forEach(b => b.classList.remove('active'));
+    if (btn) btn.classList.add('active');
+  }
+  window.scrollTo(0,0);
+}
+
+// ── AI HELPER ──────────────────────────────────────────────────
+async function callClaude(systemPrompt, userMsg, loadId, respId) {
+  const loading = document.getElementById(loadId);
+  const resp = document.getElementById(respId);
+  loading.classList.add('visible');
+  resp.classList.remove('visible');
+  resp.textContent = '';
+  try {
+    const r = await fetch(ANTHROPIC_API, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ model: MODEL, max_tokens: 1000, system: systemPrompt, messages: [{ role: 'user', content: userMsg }] })
+    });
+    const data = await r.json();
+    const text = data.content && data.content[0] ? data.content[0].text : 'Unable to get response. Please try again.';
+    loading.classList.remove('visible');
+    resp.textContent = text;
+    resp.classList.add('visible');
+  } catch(e) {
+    loading.classList.remove('visible');
+    resp.textContent = 'Connection error. Please check your internet and try again.';
+    resp.classList.add('visible');
+  }
+}
+
+const FARM_SYSTEM = 'You are an expert agricultural advisor for smallholder farmers in Nepal and South Asia. Give practical, actionable, affordable advice. Respond in 3-4 focused paragraphs. Use simple language. Include specific quantities, timings, and product names where helpful.';
+
+function callAdvisor() {
+  const q = document.getElementById('advisor-q').value.trim();
+  if (!q) return;
+  callClaude(FARM_SYSTEM, q, 'advisor-loading', 'advisor-response');
+}
+function askAdvisor(q) {
+  document.getElementById('advisor-q').value = q;
+  showPage('advisor', null);
+  document.querySelectorAll('.sidebar-link').forEach((b,i) => { if (b.textContent.includes('AI Advisor')) b.classList.add('active'); else b.classList.remove('active'); });
+  setTimeout(callAdvisor, 100);
+}
+function askAdvisorAndSwitch(q) {
+  document.getElementById('advisor-q').value = q;
+  showPage('advisor', null);
+  setTimeout(callAdvisor, 200);
+}
+function callSoilAI() {
+  const q = document.getElementById('soil-q').value.trim();
+  if (!q) return;
+  callClaude('You are an expert soil scientist and agronomist for South Asian farming. Give concise, actionable soil management advice with specific amendment names and quantities.', q, 'soil-loading', 'soil-response');
+}
+function callPestAI() {
+  const q = document.getElementById('pest-q').value.trim();
+  if (!q) return;
+  callClaude('You are an expert crop pathologist and entomologist. When given symptom descriptions, identify the pest/disease, give confirmation signs, organic treatment, chemical treatment if severe, and prevention. Be concise and practical for a smallholder farmer.', q, 'pest-loading', 'pest-response');
+}
+function callRotationAI() {
+  const q = document.getElementById('rotation-q').value.trim();
+  if (!q) return;
+  callClaude('You are an expert in sustainable crop rotation for South Asian smallholder farming. Recommend specific rotation sequences with clear reasons for each choice. Include soil benefits, pest cycle breaking, and economic considerations.', q, 'rotation-loading', 'rotation-response');
+}
+
+// Enter key triggers
+['advisor-q','soil-q','pest-q','rotation-q'].forEach(id => {
+  const el = document.getElementById(id);
+  if (el) el.addEventListener('keydown', e => { if (e.key === 'Enter') el.nextElementSibling && el.nextElementSibling.click(); });
+});
+document.getElementById('advisor-q').addEventListener('keydown', e => { if (e.key === 'Enter') callAdvisor(); });
+document.getElementById('soil-q').addEventListener('keydown', e => { if (e.key === 'Enter') callSoilAI(); });
+document.getElementById('pest-q').addEventListener('keydown', e => { if (e.key === 'Enter') callPestAI(); });
+document.getElementById('rotation-q').addEventListener('keydown', e => { if (e.key === 'Enter') callRotationAI(); });
+
+// ── CROPS ─────────────────────────────────────────────────────
+const crops = [
+  { name:'Wheat', emoji:'🌾', season:'Oct–Mar', soil:'Loam pH 6–7', water:'6–8 inch at sowing', fert:'DAP + Urea top-dress at tillering', pests:'Aphids, rust, smut', duration:'120–150d', season_type:'Rabi' },
+  { name:'Rice', emoji:'🌿', season:'Jun–Nov', soil:'Clay pH 5.5–6.5', water:'Flood / 2–3 inch standing', fert:'N in 3 splits, K+P at transplant', pests:'Brown planthopper, blast, stem borer', duration:'100–150d', season_type:'Kharif' },
+  { name:'Tomato', emoji:'🍅', season:'All seasons', soil:'Sandy loam pH 6–6.8', water:'Drip 1–1.5L/plant/day', fert:'NPK 19:19:19 + Ca-B foliar', pests:'Early blight, whitefly, fruit borer', duration:'60–80d', season_type:'Year-round' },
+  { name:'Potato', emoji:'🥔', season:'Oct–Feb', soil:'Loam pH 5.5–6', water:'Furrow, avoid waterlog', fert:'High K+P at planting', pests:'Late blight, aphids, scab', duration:'70–120d', season_type:'Rabi' },
+  { name:'Maize', emoji:'🌽', season:'Jun–Oct', soil:'Deep loam pH 5.8–7', water:'Critical at tasseling', fert:'N-heavy, side-dress at knee height', pests:'Fall armyworm, stalk borer', duration:'80–110d', season_type:'Kharif' },
+  { name:'Lentil', emoji:'🫘', season:'Oct–Mar', soil:'Sandy loam pH 6–8', water:'Minimal, drought tolerant', fert:'Rhizobium inoculant, low N', pests:'Fusarium wilt, aphids, pod borer', duration:'90–120d', season_type:'Rabi' },
+];
+const cropGrid = document.getElementById('crop-grid');
+crops.forEach((c, i) => {
+  const div = document.createElement('div');
+  div.className = 'crop-card';
+  div.innerHTML = `<div class="crop-emoji">${c.emoji}</div><div class="crop-name">${c.name}</div><div class="crop-season">${c.season}</div>`;
+  div.onclick = () => showCropDetail(c, div);
+  cropGrid.appendChild(div);
+});
+function showCropDetail(c, el) {
+  document.querySelectorAll('.crop-card').forEach(x => x.classList.remove('selected'));
+  el.classList.add('selected');
+  document.getElementById('crop-detail-title').textContent = c.emoji + ' ' + c.name + ' Growing Guide';
+  document.getElementById('crop-detail-body').innerHTML = `
+    <div class="list-row"><div class="row-icon g"><i class="ti ti-calendar"></i></div><div class="row-text"><p>Season: ${c.season_type}</p><span>Duration: ${c.duration} · Best sown: ${c.season}</span></div></div>
+    <div class="list-row"><div class="row-icon g"><i class="ti ti-layers"></i></div><div class="row-text"><p>Soil</p><span>${c.soil}</span></div></div>
+    <div class="list-row"><div class="row-icon b"><i class="ti ti-droplet"></i></div><div class="row-text"><p>Irrigation</p><span>${c.water}</span></div></div>
+    <div class="list-row"><div class="row-icon a"><i class="ti ti-flask"></i></div><div class="row-text"><p>Fertilization</p><span>${c.fert}</span></div></div>
+    <div class="list-row" style="border:none"><div class="row-icon r"><i class="ti ti-bug"></i></div><div class="row-text"><p>Watch for</p><span>${c.pests}</span></div></div>`;
+  document.getElementById('crop-detail-card').style.display = 'block';
+}
+
+// ── WEATHER ───────────────────────────────────────────────────
+const weatherData = [
+  {day:'Today', icon:'⛈️', desc:'Thunderstorm', rain:85, hi:28, lo:21},
+  {day:'Tue', icon:'🌧️', desc:'Light rain', rain:60, hi:26, lo:20},
+  {day:'Wed', icon:'⛅', desc:'Partly cloudy', rain:15, hi:30, lo:22},
+  {day:'Thu', icon:'☀️', desc:'Sunny', rain:5, hi:33, lo:23},
+  {day:'Fri', icon:'☀️', desc:'Clear', rain:5, hi:34, lo:24},
+  {day:'Sat', icon:'🌤️', desc:'Mostly sunny', rain:10, hi:32, lo:23},
+  {day:'Sun', icon:'⛅', desc:'Cloudy', rain:30, hi:29, lo:21},
+];
+const wl = document.getElementById('weather-list');
+weatherData.forEach(w => {
+  const div = document.createElement('div');
+  div.className = 'weather-row';
+  div.innerHTML = `<span class="weather-day">${w.day}</span><span class="weather-icon">${w.icon}</span><span class="weather-desc">${w.desc}</span><div class="weather-bar"><div class="weather-bar-fill" style="width:${w.rain}%"></div></div><span class="weather-temp">${w.hi}/${w.lo}°C</span>`;
+  wl.appendChild(div);
+});
+
+// ── MARKET ────────────────────────────────────────────────────
+const marketData = [
+  {crop:'🌾 Wheat', price:'₹2,180', ch:'+4.2%', dir:'up'},
+  {crop:'🌿 Rice (Basmati)', price:'₹4,350', ch:'+1.8%', dir:'up'},
+  {crop:'🍅 Tomato', price:'₹890', ch:'-6.1%', dir:'down'},
+  {crop:'🥔 Potato', price:'₹1,120', ch:'+0.3%', dir:'flat'},
+  {crop:'🌽 Maize', price:'₹1,790', ch:'+2.7%', dir:'up'},
+  {crop:'🫘 Lentil', price:'₹6,200', ch:'+5.4%', dir:'up'},
+];
+const ml = document.getElementById('market-list');
+marketData.forEach(m => {
+  const div = document.createElement('div');
+  div.className = 'market-row';
+  div.innerHTML = `<span class="market-crop">${m.crop}</span><span class="market-price">${m.price}</span><span class="market-change ch-${m.dir}">${m.ch}</span>`;
+  ml.appendChild(div);
+});
+
+// ── PESTS ─────────────────────────────────────────────────────
+const pests = [
+  {name:'Aphids', sev:'high', desc:'Clusters under leaves, sticky residue. Use neem oil or introduce ladybugs. Spray early morning.'},
+  {name:'Powdery Mildew', sev:'med', desc:'White powder on leaves. Improve air circulation, apply sulfur-based fungicide immediately.'},
+  {name:'Fall Armyworm', sev:'high', desc:'Ragged holes in leaves and tassels. Apply Bt or spinosad early. Inspect at night.'},
+  {name:'Root Rot', sev:'med', desc:'Yellowing + wilting despite moisture. Improve drainage, reduce watering frequency.'},
+  {name:'Whitefly', sev:'low', desc:'Tiny white flies, yellow leaf stippling. Yellow sticky traps + weekly neem oil spray.'},
+  {name:'Late Blight', sev:'high', desc:'Dark water-soaked lesions on potato/tomato. Remove affected plants immediately. Copper fungicide.'},
+];
+const pg = document.getElementById('pest-grid');
+pests.forEach(p => {
+  const div = document.createElement('div');
+  div.className = 'pest-card';
+  const labels = {high:'High Risk', med:'Moderate', low:'Low Risk'};
+  div.innerHTML = `<span class="sev-pill sev-${p.sev}">${labels[p.sev]}</span><div class="pest-name">${p.name}</div><div class="pest-desc">${p.desc}</div>`;
+  pg.appendChild(div);
+});
+
+// ── SOIL CALCULATOR ───────────────────────────────────────────
+const soilData = {
+  wheat:  {n:[100,80,60], p:[60,50,40], k:[40,30,25], base:'DAP at sowing + Urea top-dress'},
+  rice:   {n:[120,100,70], p:[60,50,40], k:[60,50,40], base:'Split N in 3 applications'},
+  tomato: {n:[150,120,90], p:[80,70,60], k:[100,80,60], base:'NPK 19:19:19 + foliar spray'},
+  potato: {n:[120,100,80], p:[80,70,60], k:[150,120,100], base:'High K at planting + hilling'},
+  maize:  {n:[150,120,90], p:[75,60,50], k:[50,40,30], base:'N side-dress at knee height'},
+  lentil: {n:[20,15,10], p:[40,35,30], k:[25,20,15], base:'Rhizobium inoculant, minimal N'},
+};
+function calcSoil() {
+  const crop = document.getElementById('soil-crop').value;
+  const area = parseFloat(document.getElementById('soil-area').value) || 1;
+  const nLevel = document.getElementById('soil-n').value;
+  const ph = parseFloat(document.getElementById('soil-ph').value);
+  const prev = document.getElementById('soil-prev').value;
+  const d = soilData[crop];
+  const ni = nLevel === 'low' ? 0 : nLevel === 'medium' ? 1 : 2;
+  let n = Math.round(d.n[ni] * area);
+  let p = Math.round(d.p[ni] * area);
+  let k = Math.round(d.k[ni] * area);
+  if (prev === 'legume') { n = Math.round(n * 0.75); }
+  const dap = Math.round(p * 2.17);
+  const urea = Math.round(Math.max(0, n - dap * 0.18) * 2.17);
+  const mop = Math.round(k * 1.67);
+  const rcg = document.getElementById('soil-rcard-grid');
+  rcg.innerHTML = `
+    <div class="soil-rcard"><div class="sr-label">Nitrogen (N)</div><div class="sr-value">${n} <span class="sr-unit">kg/bigha</span></div></div>
+    <div class="soil-rcard"><div class="sr-label">Phosphorus (P)</div><div class="sr-value">${p} <span class="sr-unit">kg/bigha</span></div></div>
+    <div class="soil-rcard"><div class="sr-label">Potassium (K)</div><div class="sr-value">${k} <span class="sr-unit">kg/bigha</span></div></div>
+    <div class="soil-rcard"><div class="sr-label">Total Area</div><div class="sr-value">${area} <span class="sr-unit">bigha</span></div></div>`;
+  const ft = document.getElementById('fert-table');
+  ft.innerHTML = `<thead><tr><th>Fertilizer</th><th>Amount</th><th>When to Apply</th></tr></thead><tbody>
+    <tr><td>DAP (18:46:0)</td><td class="highlight">${dap} kg</td><td>At sowing / transplant</td></tr>
+    <tr><td>Urea (46% N)</td><td class="highlight">${urea} kg</td><td>Split: 30 & 60 days after sowing</td></tr>
+    <tr><td>MOP (0:0:60)</td><td class="highlight">${mop} kg</td><td>At sowing, mix with DAP</td></tr>
+    </tbody>`;
+  let notes = '';
+  if (ph < 5.5) notes = '<div class="alert-strip"><i class="ti ti-alert-triangle"></i> Soil is acidic (pH ' + ph + '). Apply 200–400 kg lime per bigha before sowing.</div>';
+  else if (ph > 7.5) notes = '<div class="alert-strip"><i class="ti ti-alert-triangle"></i> Soil is alkaline (pH ' + ph + '). Apply sulfur or organic matter to lower pH.</div>';
+  if (prev === 'legume') notes += '<div class="alert-strip" style="background:var(--green-100);border-color:var(--green-700);color:var(--green-800)"><i class="ti ti-leaf"></i> Previous legume crop: N reduced by 25% — natural nitrogen credit applied.</div>';
+  document.getElementById('soil-notes').innerHTML = notes;
+  document.getElementById('soil-result').classList.add('visible');
+}
+
+// ── CROP ROTATION ─────────────────────────────────────────────
+const rotationCrops = crops.map(c => ({...c}));
+const seasons = ['Season 1\n(Spring)', 'Season 2\n(Monsoon)', 'Season 3\n(Autumn)', 'Season 4\n(Winter)'];
+let rotationPlan = [null, null, null, null];
+let activeSlot = -1;
+
+function buildRotationSlots() {
+  const container = document.getElementById('rotation-slots');
+  container.innerHTML = '';
+  seasons.forEach((s, i) => {
+    const div = document.createElement('div');
+    div.className = 'rotation-slot' + (rotationPlan[i] ? ' filled' : '');
+    const sLabel = s.replace('\n', '<br>');
+    if (rotationPlan[i]) {
+      div.innerHTML = `<div class="slot-season">${sLabel}</div><div class="slot-emoji">${rotationPlan[i].emoji}</div><div class="slot-crop">${rotationPlan[i].name}</div>`;
+    } else {
+      div.innerHTML = `<div class="slot-season">${sLabel}</div><div class="slot-plus">+</div>`;
+    }
+    div.onclick = () => openCropPicker(i);
+    container.appendChild(div);
+  });
+}
+function openCropPicker(slotIdx) {
+  activeSlot = slotIdx;
+  const grid = document.getElementById('rotation-pick-grid');
+  grid.innerHTML = '';
+  rotationCrops.forEach(c => {
+    const btn = document.createElement('div');
+    btn.className = 'rotation-pick-btn';
+    btn.innerHTML = `<span class="rp-emoji">${c.emoji}</span>${c.name}`;
+    btn.onclick = () => { rotationPlan[slotIdx] = c; closeModal(); buildRotationSlots(); };
+    grid.appendChild(btn);
+  });
+  document.getElementById('crop-picker-modal').classList.add('open');
+}
+function closeModal(e) {
+  if (!e || e.target === document.getElementById('crop-picker-modal')) {
+    document.getElementById('crop-picker-modal').classList.remove('open');
+  }
+}
+function resetRotation() { rotationPlan = [null,null,null,null]; buildRotationSlots(); document.getElementById('rotation-benefits').classList.remove('visible'); }
+function autoRotation() {
+  rotationPlan = [crops[0], crops[1], crops[3], crops[5]];
+  buildRotationSlots();
+  analyzeRotation();
+}
+function analyzeRotation() {
+  const filled = rotationPlan.filter(Boolean);
+  if (filled.length < 2) { alert('Please add at least 2 crops to analyze.'); return; }
+  const hasLegume = filled.some(c => ['Lentil'].includes(c.name));
+  const hasCereal = filled.some(c => ['Wheat','Rice','Maize'].includes(c.name));
+  const diversity = new Set(filled.map(c => c.name)).size;
+  const benefits = [];
+  if (hasLegume) benefits.push({icon:'🌱', title:'Nitrogen fixation', desc:'Lentil/legume in rotation naturally adds 40–60 kg N/ha, reducing fertilizer cost next season.', cls:'g'});
+  if (hasCereal && hasLegume) benefits.push({icon:'🔄', title:'Excellent pest cycle break', desc:'Alternating cereals and legumes disrupts soil-borne pest and disease cycles significantly.', cls:'g'});
+  if (diversity >= 3) benefits.push({icon:'🌍', title:'High biodiversity score', desc:`${diversity} different crops promote microbial diversity and reduce monoculture risks.`, cls:'g'});
+  if (diversity < 3) benefits.push({icon:'⚠️', title:'Low crop diversity', desc:'Consider adding more variety — at least one legume and one root crop for balanced rotation.', cls:'a'});
+  const names = filled.map(c => c.name).join(' → ');
+  benefits.push({icon:'📋', title:'Your rotation sequence', desc: names + (rotationPlan[3] ? ' → repeat' : ''), cls:'b'});
+  const bl = document.getElementById('rotation-benefit-list');
+  bl.innerHTML = '';
+  benefits.forEach(b => {
+    const div = document.createElement('div');
+    div.className = 'benefit-row';
+    div.innerHTML = `<div class="b-icon row-icon ${b.cls}">${b.icon}</div><div class="b-text"><strong>${b.title}</strong>${b.desc}</div>`;
+    bl.appendChild(div);
+  });
+  document.getElementById('rotation-benefits').classList.add('visible');
+}
+buildRotationSlots();
+
+// ── CAMERA SCAN ───────────────────────────────────────────────
+let stream = null;
+let capturedImageData = null;
+
+async function openCamera() {
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio: false });
+    const video = document.getElementById('camera-view');
+    video.srcObject = stream;
+    document.getElementById('camera-view-wrap').style.display = 'block';
+    document.getElementById('camera-actions').style.display = 'flex';
+    document.getElementById('preview-wrap').style.display = 'none';
+    document.getElementById('scan-result-box').classList.remove('visible');
+  } catch(e) {
+    alert('Camera access denied or not available. Please use the "Upload Image" option instead, or allow camera permissions in your browser settings.');
+  }
+}
+function stopCamera() {
+  if (stream) { stream.getTracks().forEach(t => t.stop()); stream = null; }
+  document.getElementById('camera-view-wrap').style.display = 'none';
+  document.getElementById('camera-actions').style.display = 'none';
+}
+function capturePhoto() {
+  const video = document.getElementById('camera-view');
+  const canvas = document.createElement('canvas');
+  canvas.width = video.videoWidth;
+  canvas.height = video.videoHeight;
+  canvas.getContext('2d').drawImage(video, 0, 0);
+  capturedImageData = canvas.toDataURL('image/jpeg', 0.85).split(',')[1];
+  document.getElementById('preview-img').src = 'data:image/jpeg;base64,' + capturedImageData;
+  document.getElementById('preview-wrap').style.display = 'block';
+  stopCamera();
+}
+document.getElementById('file-input').addEventListener('change', function(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(ev) {
+    capturedImageData = ev.target.result.split(',')[1];
+    document.getElementById('preview-img').src = ev.target.result;
+    document.getElementById('preview-wrap').style.display = 'block';
+    document.getElementById('camera-view-wrap').style.display = 'none';
+    document.getElementById('camera-actions').style.display = 'none';
+    document.getElementById('scan-result-box').classList.remove('visible');
+  };
+  reader.readAsDataURL(file);
+  this.value = '';
+});
+function resetScan() {
+  capturedImageData = null;
+  document.getElementById('preview-wrap').style.display = 'none';
+  document.getElementById('scan-result-box').classList.remove('visible');
+  document.getElementById('camera-view-wrap').style.display = 'none';
+  document.getElementById('camera-actions').style.display = 'none';
+}
+
+async function analyzeImage() {
+  if (!capturedImageData) return;
+  const box = document.getElementById('scan-result-box');
+  const title = document.getElementById('scan-result-title');
+  const conf = document.getElementById('scan-result-conf');
+  const body = document.getElementById('scan-result-body');
+  box.classList.add('visible');
+  document.getElementById('scan-result-emoji').textContent = '🔍';
+  title.textContent = 'Analyzing image…';
+  conf.textContent = '';
+  body.innerHTML = '<div style="display:flex;align-items:center;gap:8px;color:var(--text3);font-size:13px"><div class="spinner"></div> AI is examining your image…</div>';
+  try {
+    const r = await fetch(ANTHROPIC_API, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: MODEL,
+        max_tokens: 1000,
+        system: 'You are an expert agricultural AI that analyzes images of crops, plants, pests, soil, and farm conditions. Always respond in this exact format:\n\nIDENTIFICATION: [what you see — crop, disease, pest, plant type, or soil condition]\nCONFIDENCE: [High/Medium/Low]\nSTATUS: [healthy/diseased/pest-infested/unidentified]\nSEVERITY: [if applicable: none/low/moderate/high]\nDIAGNOSIS: [2-3 sentences explaining what you see]\nIMMEDIATE ACTION: [what to do in the next 24-48 hours]\nTREATMENT: [specific treatment recommendation with product names if applicable]\nPREVENTION: [how to prevent this in future]\n\nIf the image is not related to farming or agriculture, say so clearly.',
+        messages: [{
+          role: 'user',
+          content: [
+            { type: 'image', source: { type: 'base64', media_type: 'image/jpeg', data: capturedImageData } },
+            { type: 'text', text: 'Analyze this image from a farm. Identify any crops, diseases, pests, weeds, or soil conditions visible. Give me actionable farming advice.' }
+          ]
+        }]
+      })
+    });
+    const data = await r.json();
+    const text = data.content && data.content[0] ? data.content[0].text : 'Could not analyze image.';
+    
+    const idMatch = text.match(/IDENTIFICATION:\s*(.+)/);
+    const confMatch = text.match(/CONFIDENCE:\s*(.+)/);
+    const emojiMap = {'wheat':'🌾','rice':'🌿','tomato':'🍅','potato':'🥔','maize':'🌽','corn':'🌽','lentil':'🫘','leaf':'🍃','blight':'🍂','mildew':'🍄','aphid':'🐛','pest':'🦗','soil':'🪨','weed':'🌿','healthy':'✅','disease':'⚠️'};
+    let emoji = '🔬';
+    if (idMatch) {
+      const id = idMatch[1].toLowerCase();
+      for (const [k,v] of Object.entries(emojiMap)) { if (id.includes(k)) { emoji = v; break; } }
+    }
+    document.getElementById('scan-result-emoji').textContent = emoji;
+    title.textContent = idMatch ? idMatch[1] : 'Analysis Complete';
+    conf.textContent = confMatch ? 'Confidence: ' + confMatch[1] : '';
+    body.innerHTML = '<pre style="white-space:pre-wrap;font-family:inherit;font-size:13px;color:var(--text);line-height:1.75">' + text.replace(/\*\*/g,'').replace(/#{1,3} /g,'') + '</pre>';
+  } catch(e) {
+    title.textContent = 'Analysis Failed';
+    body.innerHTML = '<p style="font-size:13px;color:var(--text2)">Could not connect to AI. Please check your connection and try again.</p>';
+  }
+}
+</script>
+</body>
+</html>
